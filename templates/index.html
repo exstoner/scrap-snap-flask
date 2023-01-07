@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+	<title>Scrape Video Links From Snapchat </title>
+	<style>
+		/* cspell:disable-file */
+		/* webkit printing magic: print all background colors */
+		html {
+			-webkit-print-color-adjust: exact;
+		}
+
+		* {
+			box-sizing: border-box;
+			-webkit-print-color-adjust: exact;
+		}
+
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		@media only screen {
+			body {
+				margin: 2em auto;
+				max-width: 900px;
+				color: rgb(55, 53, 47);
+			}
+		}
+
+		body {
+			line-height: 1.5;
+		}
+
+		a,
+		a.visited {
+			color: inherit;
+			text-decoration: underline;
+		}
+
+		.pdf-relative-link-path {
+			font-size: 80%;
+			color: #444;
+		}
+
+		h1,
+		h2,
+		h3 {
+			letter-spacing: -0.01em;
+			line-height: 1.2;
+			font-weight: 600;
+			margin-bottom: 0;
+		}
+
+		.page-title {
+			font-size: 2.5rem;
+			font-weight: 700;
+			margin-top: 0;
+			margin-bottom: 0.75em;
+		}
+
+		h1 {
+			font-size: 1.875rem;
+			margin-top: 1.875rem;
+		}
+
+		h2 {
+			font-size: 1.5rem;
+			margin-top: 1.5rem;
+		}
+
+		h3 {
+			font-size: 1.25rem;
+			margin-top: 1.25rem;
+		}
+
+		.source {
+			border: 1px solid #ddd;
+			border-radius: 3px;
+			padding: 1.5em;
+			word-break: break-all;
+		}
+
+		.callout {
+			border-radius: 3px;
+			padding: 1rem;
+		}
+
+		figure {
+			margin: 1.25em 0;
+			page-break-inside: avoid;
+		}
+
+		figcaption {
+			opacity: 0.5;
+			font-size: 85%;
+			margin-top: 0.5em;
+		}
+
+		mark {
+			background-color: transparent;
+		}
+
+		.indented {
+			padding-left: 1.5em;
+		}
+
+		hr {
+			background: transparent;
+			display: block;
+			width: 100%;
+			height: 1px;
+			visibility: visible;
+			border: none;
+			border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+		}
+
+		img {
+			max-width: 100%;
+		}
+
+		@media only print {
+			img {
+				max-height: 100vh;
+				object-fit: contain;
+			}
+		}
+
+		@page {
+			margin: 1in;
+		}
+
+		.collection-content {
+			font-size: 0.875rem;
+		}
+
+		.column-list {
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.column {
+			padding: 0 1em;
+		}
+
+		.column:first-child {
+			padding-left: 0;
+		}
+
+		.column:last-child {
+			padding-right: 0;
+		}
+
+		.table_of_contents-item {
+			display: block;
+			font-size: 0.875rem;
+			line-height: 1.3;
+			padding: 0.125rem;
+		}
+
+		.table_of_contents-indent-1 {
+			margin-left: 1.5rem;
+		}
+
+		.table_of_contents-indent-2 {
+			margin-left: 3rem;
+		}
+
+		.table_of_contents-indent-3 {
+			margin-left: 4.5rem;
+		}
+
+		.table_of_contents-link {
+			text-decoration: none;
+			opacity: 0.7;
+			border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid rgba(55, 53, 47, 0.09);
+			border-collapse: collapse;
+		}
+
+		table {
+			border-left: none;
+			border-right: none;
+		}
+
+		th,
+		td {
+			font-weight: normal;
+			padding: 0.25em 0.5em;
+			line-height: 1.5;
+			min-height: 1.5em;
+			text-align: left;
+		}
+
+		th {
+			color: rgba(55, 53, 47, 0.6);
+		}
+
+		ol,
+		ul {
+			margin: 0;
+			margin-block-start: 0.6em;
+			margin-block-end: 0.6em;
+		}
+
+		li>ol:first-child,
+		li>ul:first-child {
+			margin-block-start: 0.6em;
+		}
+
+		ul>li {
+			list-style: disc;
+		}
+
+		ul.to-do-list {
+			text-indent: -1.7em;
+		}
+
+		ul.to-do-list>li {
+			list-style: none;
+		}
+
+		.to-do-children-checked {
+			text-decoration: line-through;
+			opacity: 0.375;
+		}
+
+		ul.toggle>li {
+			list-style: none;
+		}
+
+		ul {
+			padding-inline-start: 1.7em;
+		}
+
+		ul>li {
+			padding-left: 0.1em;
+		}
+
+		ol {
+			padding-inline-start: 1.6em;
+		}
+
+		ol>li {
+			padding-left: 0.2em;
+		}
+
+		.mono ol {
+			padding-inline-start: 2em;
+		}
+
+		.mono ol>li {
+			text-indent: -0.4em;
+		}
+
+		.toggle {
+			padding-inline-start: 0em;
+			list-style-type: none;
+		}
+
+		/* Indent toggle children */
+		.toggle>li>details {
+			padding-left: 1.7em;
+		}
+
+		.toggle>li>details>summary {
+			margin-left: -1.1em;
+		}
+
+		.selected-value {
+			display: inline-block;
+			padding: 0 0.5em;
+			background: rgba(206, 205, 202, 0.5);
+			border-radius: 3px;
+			margin-right: 0.5em;
+			margin-top: 0.3em;
+			margin-bottom: 0.3em;
+			white-space: nowrap;
+		}
+
+		.collection-title {
+			display: inline-block;
+			margin-right: 1em;
+		}
+
+		.simple-table {
+			margin-top: 1em;
+			font-size: 0.875rem;
+			empty-cells: show;
+		}
+
+		.simple-table td {
+			height: 29px;
+			min-width: 120px;
+		}
+
+		.simple-table th {
+			height: 29px;
+			min-width: 120px;
+		}
+
+		.simple-table-header-color {
+			background: rgb(247, 246, 243);
+			color: black;
+		}
+
+		.simple-table-header {
+			font-weight: 500;
+		}
+
+		time {
+			opacity: 0.5;
+		}
+
+		.icon {
+			display: inline-block;
+			max-width: 1.2em;
+			max-height: 1.2em;
+			text-decoration: none;
+			vertical-align: text-bottom;
+			margin-right: 0.5em;
+		}
+
+		img.icon {
+			border-radius: 3px;
+		}
+
+		.user-icon {
+			width: 1.5em;
+			height: 1.5em;
+			border-radius: 100%;
+			margin-right: 0.5rem;
+		}
+
+		.user-icon-inner {
+			font-size: 0.8em;
+		}
+
+		.text-icon {
+			border: 1px solid #000;
+			text-align: center;
+		}
+
+		.page-cover-image {
+			display: block;
+			object-fit: cover;
+			width: 100%;
+			max-height: 30vh;
+		}
+
+		.page-header-icon {
+			font-size: 3rem;
+			margin-bottom: 1rem;
+		}
+
+		.page-header-icon-with-cover {
+			margin-top: -0.72em;
+			margin-left: 0.07em;
+		}
+
+		.page-header-icon img {
+			border-radius: 3px;
+		}
+
+		.link-to-page {
+			margin: 1em 0;
+			padding: 0;
+			border: none;
+			font-weight: 500;
+		}
+
+		p>.user {
+			opacity: 0.5;
+		}
+
+		td>.user,
+		td>time {
+			white-space: nowrap;
+		}
+
+		input[type="checkbox"] {
+			transform: scale(1.5);
+			margin-right: 0.6em;
+			vertical-align: middle;
+		}
+
+		p {
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+		}
+
+		.image {
+			border: none;
+			margin: 1.5em 0;
+			padding: 0;
+			border-radius: 0;
+			text-align: center;
+		}
+
+		.code,
+		code {
+			background: rgba(135, 131, 120, 0.15);
+			border-radius: 3px;
+			padding: 0.2em 0.4em;
+			border-radius: 3px;
+			font-size: 85%;
+			tab-size: 2;
+		}
+
+		code {
+			color: #eb5757;
+		}
+
+		.code {
+			padding: 1.5em 1em;
+		}
+
+		.code-wrap {
+			word-break: break-all;
+		}
+
+		.code>code {
+			background: none;
+			padding: 0;
+			font-size: 100%;
+			color: inherit;
+		}
+
+		blockquote {
+			font-size: 1.25em;
+			margin: 1em 0;
+			padding-left: 1em;
+			border-left: 3px solid rgb(55, 53, 47);
+		}
+
+		.bookmark {
+			text-decoration: none;
+			max-height: 8em;
+			padding: 0;
+			display: flex;
+			width: 100%;
+			align-items: stretch;
+		}
+
+		.bookmark-title {
+			font-size: 0.85em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			height: 1.75em;
+			white-space: nowrap;
+		}
+
+		.bookmark-text {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.bookmark-info {
+			flex: 4 1 180px;
+			padding: 12px 14px 14px;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+		}
+
+		.bookmark-image {
+			width: 33%;
+			flex: 1 1 180px;
+			display: block;
+			position: relative;
+			object-fit: cover;
+			border-radius: 1px;
+		}
+
+		.bookmark-description {
+			color: rgba(55, 53, 47, 0.6);
+			font-size: 0.75em;
+			overflow: hidden;
+			max-height: 4.5em;
+			word-break: break-word;
+		}
+
+		.bookmark-href {
+			font-size: 0.75em;
+			margin-top: 0.25em;
+		}
+
+		.sans {
+			font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+		}
+
+		.code {
+			font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace;
+		}
+
+		.serif {
+			font-family: Lyon-Text, Georgia, ui-serif, serif;
+		}
+
+		.mono {
+			font-family: iawriter-mono, Nitti, Menlo, Courier, monospace;
+		}
+
+		.pdf .sans {
+			font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP';
+		}
+
+		.pdf:lang(zh-CN) .sans {
+			font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC';
+		}
+
+		.pdf:lang(zh-TW) .sans {
+			font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC';
+		}
+
+		.pdf:lang(ko-KR) .sans {
+			font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR';
+		}
+
+		.pdf .code {
+			font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP';
+		}
+
+		.pdf:lang(zh-CN) .code {
+			font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC';
+		}
+
+		.pdf:lang(zh-TW) .code {
+			font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC';
+		}
+
+		.pdf:lang(ko-KR) .code {
+			font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR';
+		}
+
+		.pdf .serif {
+			font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP';
+		}
+
+		.pdf:lang(zh-CN) .serif {
+			font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC';
+		}
+
+		.pdf:lang(zh-TW) .serif {
+			font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC';
+		}
+
+		.pdf:lang(ko-KR) .serif {
+			font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR';
+		}
+
+		.pdf .mono {
+			font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP';
+		}
+
+		.pdf:lang(zh-CN) .mono {
+			font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC';
+		}
+
+		.pdf:lang(zh-TW) .mono {
+			font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC';
+		}
+
+		.pdf:lang(ko-KR) .mono {
+			font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR';
+		}
+
+		.highlight-default {
+			color: rgba(55, 53, 47, 1);
+		}
+
+		.highlight-gray {
+			color: rgba(120, 119, 116, 1);
+			fill: rgba(120, 119, 116, 1);
+		}
+
+		.highlight-brown {
+			color: rgba(159, 107, 83, 1);
+			fill: rgba(159, 107, 83, 1);
+		}
+
+		.highlight-orange {
+			color: rgba(217, 115, 13, 1);
+			fill: rgba(217, 115, 13, 1);
+		}
+
+		.highlight-yellow {
+			color: rgba(203, 145, 47, 1);
+			fill: rgba(203, 145, 47, 1);
+		}
+
+		.highlight-teal {
+			color: rgba(68, 131, 97, 1);
+			fill: rgba(68, 131, 97, 1);
+		}
+
+		.highlight-blue {
+			color: rgba(51, 126, 169, 1);
+			fill: rgba(51, 126, 169, 1);
+		}
+
+		.highlight-purple {
+			color: rgba(144, 101, 176, 1);
+			fill: rgba(144, 101, 176, 1);
+		}
+
+		.highlight-pink {
+			color: rgba(193, 76, 138, 1);
+			fill: rgba(193, 76, 138, 1);
+		}
+
+		.highlight-red {
+			color: rgba(212, 76, 71, 1);
+			fill: rgba(212, 76, 71, 1);
+		}
+
+		.highlight-gray_background {
+			background: rgba(241, 241, 239, 1);
+		}
+
+		.highlight-brown_background {
+			background: rgba(244, 238, 238, 1);
+		}
+
+		.highlight-orange_background {
+			background: rgba(251, 236, 221, 1);
+		}
+
+		.highlight-yellow_background {
+			background: rgba(251, 243, 219, 1);
+		}
+
+		.highlight-teal_background {
+			background: rgba(237, 243, 236, 1);
+		}
+
+		.highlight-blue_background {
+			background: rgba(231, 243, 248, 1);
+		}
+
+		.highlight-purple_background {
+			background: rgba(244, 240, 247, 0.8);
+		}
+
+		.highlight-pink_background {
+			background: rgba(249, 238, 243, 0.8);
+		}
+
+		.highlight-red_background {
+			background: rgba(253, 235, 236, 1);
+		}
+
+		.block-color-default {
+			color: inherit;
+			fill: inherit;
+		}
+
+		.block-color-gray {
+			color: rgba(120, 119, 116, 1);
+			fill: rgba(120, 119, 116, 1);
+		}
+
+		.block-color-brown {
+			color: rgba(159, 107, 83, 1);
+			fill: rgba(159, 107, 83, 1);
+		}
+
+		.block-color-orange {
+			color: rgba(217, 115, 13, 1);
+			fill: rgba(217, 115, 13, 1);
+		}
+
+		.block-color-yellow {
+			color: rgba(203, 145, 47, 1);
+			fill: rgba(203, 145, 47, 1);
+		}
+
+		.block-color-teal {
+			color: rgba(68, 131, 97, 1);
+			fill: rgba(68, 131, 97, 1);
+		}
+
+		.block-color-blue {
+			color: rgba(51, 126, 169, 1);
+			fill: rgba(51, 126, 169, 1);
+		}
+
+		.block-color-purple {
+			color: rgba(144, 101, 176, 1);
+			fill: rgba(144, 101, 176, 1);
+		}
+
+		.block-color-pink {
+			color: rgba(193, 76, 138, 1);
+			fill: rgba(193, 76, 138, 1);
+		}
+
+		.block-color-red {
+			color: rgba(212, 76, 71, 1);
+			fill: rgba(212, 76, 71, 1);
+		}
+
+		.block-color-gray_background {
+			background: rgba(241, 241, 239, 1);
+		}
+
+		.block-color-brown_background {
+			background: rgba(244, 238, 238, 1);
+		}
+
+		.block-color-orange_background {
+			background: rgba(251, 236, 221, 1);
+		}
+
+		.block-color-yellow_background {
+			background: rgba(251, 243, 219, 1);
+		}
+
+		.block-color-teal_background {
+			background: rgba(237, 243, 236, 1);
+		}
+
+		.block-color-blue_background {
+			background: rgba(231, 243, 248, 1);
+		}
+
+		.block-color-purple_background {
+			background: rgba(244, 240, 247, 0.8);
+		}
+
+		.block-color-pink_background {
+			background: rgba(249, 238, 243, 0.8);
+		}
+
+		.block-color-red_background {
+			background: rgba(253, 235, 236, 1);
+		}
+
+		.select-value-color-pink {
+			background-color: rgba(245, 224, 233, 1);
+		}
+
+		.select-value-color-purple {
+			background-color: rgba(232, 222, 238, 1);
+		}
+
+		.select-value-color-green {
+			background-color: rgba(219, 237, 219, 1);
+		}
+
+		.select-value-color-gray {
+			background-color: rgba(227, 226, 224, 1);
+		}
+
+		.select-value-color-opaquegray {
+			background-color: rgba(255, 255, 255, 0.0375);
+		}
+
+		.select-value-color-orange {
+			background-color: rgba(250, 222, 201, 1);
+		}
+
+		.select-value-color-brown {
+			background-color: rgba(238, 224, 218, 1);
+		}
+
+		.select-value-color-red {
+			background-color: rgba(255, 226, 221, 1);
+		}
+
+		.select-value-color-yellow {
+			background-color: rgba(253, 236, 200, 1);
+		}
+
+		.select-value-color-blue {
+			background-color: rgba(211, 229, 239, 1);
+		}
+
+		.checkbox {
+			display: inline-flex;
+			vertical-align: text-bottom;
+			width: 16;
+			height: 16;
+			background-size: 16px;
+			margin-left: 2px;
+			margin-right: 5px;
+		}
+
+		.checkbox-on {
+			background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+		}
+
+		.checkbox-off {
+			background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+		}
+        .btn-primary {
+    --bs-btn-color: black;
+    --bs-btn-bg: yellow;
+    --bs-btn-border-color: yellow;
+    --bs-btn-hover-color: yellow;
+    --bs-btn-hover-bg: black;
+    --bs-btn-hover-border-color: black;
+    --bs-btn-focus-shadow-rgb: 49,132,253;
+    --bs-btn-active-color: black;
+    --bs-btn-active-bg: yellow;
+    --bs-btn-active-border-color: yellow;
+    --bs-btn-active-shadow: inset 0 3px 5pxrgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: black;
+    --bs-btn-disabled-bg: yellow;
+    --bs-btn-disabled-border-color: yellow;
+}
+	</style>
+</head>
+
+<body>
+	<article id="60895fbd-88b3-498c-a83b-ed9656895f3e" class="page sans">
+		<header><img class="page-cover-image"
+				src="https://images.ctfassets.net/adclj4ijug4e/5LO0pW3N2SNIQTN3DPr9zZ/ef2d3f804ec3719a3ac0d43ab3732546/social-lg.jpeg"
+				style="object-position:center 50%" />
+			<div class="page-header-icon page-header-icon-with-cover"><span class="icon">🔗</span></div>
+			<h1 class="page-title">Scrape Video Links From Snapchat </h1>
+		</header>
+		
+	</article>
+    <div class="container">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 500 500" width="32" height="32"><g id="Layer_1"><g><g><path class="css-xi64o6" d="M484.6,369.3c-2-6.8-11.9-11.6-11.9-11.6l0,0c-0.9-0.5-1.7-0.9-2.4-1.3c-16.4-7.9-30.8-17.4-43.1-28.2 c-9.8-8.7-18.2-18.2-25-28.4c-8.2-12.4-12.1-22.8-13.8-28.4c-0.9-3.7-0.8-5.1,0-7c0.6-1.6,2.5-3.1,3.4-3.8 c5.5-3.9,14.4-9.7,19.9-13.2c4.7-3.1,8.8-5.7,11.2-7.4c7.7-5.4,12.9-10.8,16-16.7c4-7.6,4.5-16,1.4-24.3 c-4.2-11.1-14.6-17.8-27.8-17.8c-2.9,0-6,0.3-9,1c-7.6,1.6-14.8,4.3-20.8,6.7c-0.4,0.2-0.9-0.2-0.9-0.6 c0.6-14.9,1.3-34.9-0.3-53.9c-1.5-17.2-5-31.7-10.8-44.3c-5.8-12.7-13.4-22.1-19.3-28.9c-5.7-6.5-15.5-16-30.5-24.5 c-21-12-45-18.1-71.1-18.1c-26.1,0-50,6.1-71.1,18.1c-15.8,9-25.9,19.2-30.5,24.5c-5.9,6.8-13.5,16.2-19.3,28.9 c-5.8,12.6-9.3,27.1-10.8,44.3c-1.6,19.1-1,37.5-0.3,53.9c0,0.5-0.5,0.8-0.9,0.6c-6-2.3-13.2-5-20.7-6.7c-3-0.7-6-1-9-1 c-13.2,0-23.6,6.7-27.8,17.8c-3.1,8.3-2.7,16.7,1.4,24.3c3.1,5.9,8.4,11.4,16,16.7c2.4,1.7,6.4,4.3,11.2,7.4 c5.3,3.5,14,9.1,19.5,13c0.7,0.5,3,2.3,3.8,4.1c0.8,2,0.9,3.4-0.1,7.3c-1.7,5.7-5.6,15.9-13.7,28.1c-6.8,10.2-15.2,19.7-25,28.4 C60.5,339,46,348.5,29.7,356.5c-0.8,0.4-1.7,0.8-2.7,1.4l0,0c0,0-9.8,5-11.6,11.4c-2.7,9.5,4.5,18.4,11.9,23.2 c12.1,7.8,26.9,12,35.4,14.3c2.4,0.6,4.5,1.2,6.5,1.8c1.2,0.4,4.3,1.6,5.6,3.3c1.7,2.1,1.9,4.8,2.5,7.8v0c0.9,5,3,11.2,9.2,15.5 c6.8,4.7,15.5,5,26.4,5.5c11.5,0.4,25.8,1,42.1,6.4c7.6,2.5,14.4,6.7,22.4,11.6c16.6,10.2,37.2,22.9,72.5,22.9 c35.3,0,56.1-12.8,72.8-23c7.9-4.8,14.7-9,22.1-11.5c16.3-5.4,30.6-5.9,42.1-6.4c11-0.4,19.6-0.7,26.4-5.5 c6.6-4.6,8.6-11.4,9.4-16.6c0.5-2.5,0.8-4.8,2.3-6.7c1.2-1.6,4.1-2.7,5.4-3.2c2-0.6,4.2-1.2,6.7-1.9c8.6-2.3,19.3-5,32.3-12.4 C485.2,385.6,486.3,374.7,484.6,369.3z"></path></g><path d="M498.2,364c-3.5-9.5-10.1-14.5-17.6-18.7c-1.4-0.8-2.7-1.5-3.8-2c-2.2-1.2-4.5-2.3-6.8-3.5 c-23.5-12.5-41.8-28.2-54.6-46.8c-4.3-6.3-7.3-12-9.4-16.6c-1.1-3.1-1-4.9-0.3-6.5c0.6-1.2,2.2-2.5,3-3.1c4-2.7,8.2-5.4,11-7.2 c5-3.3,9-5.8,11.6-7.6c9.6-6.7,16.4-13.9,20.6-21.9c5.9-11.3,6.7-24.2,2.1-36.3c-6.4-16.8-22.3-27.3-41.5-27.3 c-4,0-8,0.4-12.1,1.3c-1.1,0.2-2.1,0.5-3.1,0.7c0.2-11.4-0.1-23.6-1.1-35.6c-3.6-42-18.3-64-33.7-81.6c-6.4-7.3-17.5-18-34.2-27.6 C305.1,10.6,278.8,3.9,250,3.9c-28.7,0-55,6.7-78.3,20c-16.8,9.6-27.9,20.3-34.3,27.6c-15.3,17.5-30,39.6-33.7,81.6 c-1,11.9-1.3,24.1-1.1,35.6c-1-0.3-2.1-0.5-3.1-0.7c-4-0.9-8.1-1.3-12.1-1.3c-19.3,0-35.2,10.4-41.5,27.3 c-4.6,12.1-3.8,25,2.1,36.3c4.2,8,11,15.2,20.6,21.9c2.6,1.8,6.6,4.4,11.6,7.6c2.7,1.8,6.7,4.3,10.6,6.9c0.6,0.4,2.7,1.9,3.4,3.4 c0.8,1.7,0.8,3.5-0.4,6.8c-2.1,4.6-5,10.1-9.2,16.3c-12.4,18.2-30.3,33.6-53,46c-12,6.4-24.6,10.6-29.9,25 c-4,10.9-1.4,23.2,8.8,33.6l0,0c3.3,3.6,7.5,6.8,12.8,9.7c12.4,6.9,23,10.2,31.3,12.5c1.5,0.4,4.8,1.5,6.3,2.8 c3.7,3.2,3.2,8.1,8.1,15.2c3,4.4,6.4,7.4,9.2,9.4c10.3,7.1,21.9,7.6,34.2,8c11.1,0.4,23.7,0.9,38.1,5.7c6,2,12.1,5.8,19.3,10.2 c17.2,10.6,40.8,25,80.2,25c39.4,0,63.1-14.5,80.5-25.2c7.1-4.4,13.3-8.1,19-10c14.4-4.7,27-5.2,38.1-5.7 c12.3-0.5,23.9-0.9,34.2-8c3.2-2.2,7.3-5.9,10.5-11.5c3.5-6,3.4-10.2,6.8-13.2c1.4-1.2,4.3-2.2,5.9-2.7 c8.4-2.3,19.1-5.7,31.7-12.6c5.6-3.1,10-6.5,13.4-10.3c0,0,0.1-0.1,0.1-0.1C499.7,386.6,502.1,374.6,498.2,364z M463.2,382.8 c-21.4,11.8-35.6,10.5-46.6,17.7c-9.4,6-3.8,19.1-10.7,23.8c-8.4,5.8-33.2-0.4-65.1,10.2c-26.4,8.7-43.2,33.8-90.7,33.8 c-47.6,0-64-25-90.7-33.8c-32-10.6-56.8-4.4-65.1-10.2c-6.8-4.7-1.3-17.7-10.7-23.8c-11-7.1-25.3-5.9-46.6-17.7 c-13.6-7.5-5.9-12.2-1.4-14.4c77.4-37.5,89.8-95.4,90.3-99.7c0.7-5.2,1.4-9.3-4.3-14.6c-5.5-5.1-30.1-20.3-36.9-25 c-11.3-7.9-16.2-15.7-12.6-25.4c2.5-6.7,8.8-9.2,15.4-9.2c2,0,4.1,0.2,6.1,0.7c12.4,2.7,24.4,8.9,31.3,10.6c1,0.2,1.8,0.3,2.6,0.3 c3.7,0,5-1.9,4.8-6.1c-0.8-13.5-2.7-39.9-0.6-64.5c2.9-33.9,13.9-50.7,26.9-65.6c6.2-7.1,35.5-38.1,91.6-38.1 c56.2,0,85.3,30.9,91.6,38.1c13,14.9,23.9,31.7,26.9,65.6c2.1,24.6,0.3,51-0.6,64.5c-0.3,4.5,1.1,6.1,4.8,6.1 c0.8,0,1.6-0.1,2.6-0.3c6.9-1.7,19-7.9,31.3-10.6c2-0.4,4.1-0.7,6.1-0.7c6.6,0,12.8,2.5,15.4,9.2c3.7,9.7-1.3,17.5-12.6,25.4 c-6.8,4.7-31.3,19.9-36.9,25c-5.7,5.3-5,9.4-4.3,14.6c0.6,4.4,12.9,62.2,90.3,99.7C469.1,370.6,476.8,375.3,463.2,382.8z"></path></g></g></svg>
+        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODkiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCA4OSAyMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjMjIxRjIwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0uMjYxIDE1Ljc5NEMuMjQ3IDE0LjM5LjEyNiAxMi43NjcuMDAzIDExLjUyNmEuNTEzLjUxMyAwIDAgMSAuNDMzLS41NTlsLjAyLS4wMDNhLjUxOC41MTggMCAwIDEgLjU4LjM4IDUuOTkgNS45OSAwIDAgMCAuNzQyIDEuNzY3Yy4zMDguNDg0IDEuMzg2IDIuMTU1IDMuNjUgMi4xNTUgMS42NSAwIDIuODYtMS4xNjYgMi44Ni0yLjY0IDAtMS4zNjItMS4xLTEuOTEyLTMuMjU1LTIuNzI2LS42MzctLjI2NC0xLjI5Ny0uNTA1LTEuOTM1LS43OTFDMi4yMTggOC42OS4xNSA3LjcyMy4xNSA1LjAzOS4xNSAyLjA1IDIuNTQ4LjI5IDUuNjA1LjI5Yy43NDIgMCAxLjc5OC4xMDQgMi44NTYuNTkuMjM0LjEwNy41MS4wMjQuNjQ4LS4xOTJsLjE3NS0uMjc2YS41MTUuNTE1IDAgMCAxIC40MjItLjI0LjUxOS41MTkgMCAwIDEgLjUzLjQ4IDU1LjggNTUuOCAwIDAgMCAuNDE4IDMuNzQzLjUxOC41MTggMCAxIDEtLjk5NC4yNTVjLS4yNzYtLjcyOS0uNDMyLTEuMDctLjczNS0xLjUyNC0uNzI1LS45ODktMS42OTMtMS42Ny0yLjkwMi0xLjY3LTEuNTYyIDAtMi40ODUgMS4yNzQtMi40ODUgMi4zMDggMCAxLjE4NyAxLjA1NSAxLjY5MyAxLjUxNyAxLjkxMy45NDYuNDYyIDEuOTM1Ljc3IDIuOTI1IDEuMTY2IDEuNTgzLjYxNiAzLjc2IDEuNTYyIDMuNzYgNC40NjUgMCAyLjg1OC0yLjI4NyA1LjI1NS01LjkxNSA1LjI1NS0xLjgwMyAwLTIuOTc4LS41Ny0zLjY2LTEuMDAzYS41MTQuNTE0IDAgMCAwLS43MTQuMTdsLS4xOTUuMzIyYS41MTguNTE4IDAgMCAxLS40MDIuMjQ2bC0uMDM3LjAwM2EuNTE0LjUxNCAwIDAgMS0uNTU2LS41MDdNMTIuMjIzIDE1LjY2OGMwLS4yMTkuMTU3LS40MDUuMzcxLS40NDEuMzMyLS4wNTUuNzM0LS4xOTguNzk1LS42Mi4wNjYtLjUwNy4wNjYtMS44MjYuMDY2LTIuMTU2IDAtLjc3LS4wMjItMi4wMjMtLjAyMi0yLjc5MyAwLTEuMTA0LS4zNy0xLjQwNy0uODktMS41NTRhLjQ0NS40NDUgMCAwIDEtLjMyLS40Mjl2LS4wNTJjMC0uMjE5LjE1OC0uNDAzLjM3My0uNDQgMS4wOTUtLjE5MiAyLjc1MS0uNjYgMy42Mi0uOTZhLjQ0Ni40NDYgMCAwIDEgLjU3LjI4M2MuMDE4LjA1OC4wMzUuMTEzLjA1LjE3YS40NDcuNDQ3IDAgMCAwIC42Ni4yNmMuODMtLjQ4MiAxLjYxNy0uODQgMi43NzYtLjg0LjgzNiAwIDEuNjcyLjIyIDIuMzU0LjcwMyAxLjA3MS43NDQgMS4yNSAxLjg4IDEuMzQgMy4wODN2MS45MzFjMCAuMzMtLjA0MyAyLjA0NS0uMDQzIDIuNDIgMCAuNTU2LjE1MS44OTUuODc4IDEuMDNhLjQ0Mi40NDIgMCAwIDEgLjM1My40MzkuNDQ2LjQ0NiAwIDAgMS0uNDc1LjQ0NmMtLjYyMy0uMDQyLTEuNTY0LS4wNjktMy4xMS0uMDY5LS44NzIgMC0xLjM1My4wMjQtMS44LjA2M2EuNDQ3LjQ0NyAwIDAgMS0uNDg3LS40NDV2LS4wOTRjMC0uMjAxLjEzNS0uMzc5LjMzLS40My42NDMtLjE3NC43MjMtLjQ4MS43MDQtMS44MmwtLjA0NC0zLjQzMWMtLjAyMi0xLjA1NS0uMDY2LTIuMjY1LTEuNDk2LTIuMjY1LS41OTUgMC0xLjA1Ni4yMTgtMS41LjU1M2EuNDUxLjQ1MSAwIDAgMC0uMTg0LjM3NGMuMDM1IDEuMTAyLjAzNSA0LjIzLjAzNSA1LjIwOCAwIDEuMDA5LjE3NSAxLjI4OC43MTIgMS40My4xOTIuMDUuMzIyLjIzLjMyMi40Mjl2LjA1OGEuNDQ3LjQ0NyAwIDAgMS0uNDc1LjQ0N2MtLjc0Ny0uMDQ3LTEuNzA3LS4wNzctMy41MDYtLjA3Ny0uNjkyIDAtMS4wOTQuMDIyLTEuNDY5LjA1OGEuNDQ2LjQ0NiAwIDAgMS0uNDg4LS40NDZ2LS4wMjN6TTMxLjM3OSAxMi4wMDZhLjQ0Ny40NDcgMCAwIDAtLjU2LS40M2MtLjc0Mi4xODgtMS43MjcuNjIxLTEuNzI3IDEuNzc3IDAgLjU5NC4zMDggMS4yNTMgMS4xNDQgMS4yNTMuNDI2IDAgLjY4LS4xMjkuOTQ3LS4zMDVhLjQ0NC40NDQgMCAwIDAgLjE5Ni0uMzd2LTEuOTI1em01LjA4MiAyLjU0NGEuNDQ3LjQ0NyAwIDAgMSAuMDQxLjY2Yy0xLjA1NyAxLjA3LTIuMTA1IDEuMjg4LTIuNjgyIDEuMjg4YTIuODUgMi44NSAwIDAgMS0xLjY0OS0uNTUgMi4zODUgMi4zODUgMCAwIDEtLjQwOC0uNDIuNDQuNDQgMCAwIDAtLjU5NC0uMTAyYy0uNjA1LjM5My0xLjg1NCAxLjA5My0zLjI0MiAxLjA5My0yLjAyNCAwLTIuNTA3LTEuMzYzLTIuNTA3LTIuMTc2IDAtMi41MTMgMy44NjctMy41NjQgNS42MTgtMy44NzhhLjQ0NC40NDQgMCAwIDAgLjM2NC0uNDM2Yy4wMDItLjY4LjAwMy0xLjQ4LS4wODktMS43NTYtLjI2NC0uNzctMS4xNDMtLjc3LTEuMjUzLS43Ny0uNzI2IDAtMS4xMjIuNDQtMS4yNTQuOTI0LS4wNjYuMjg2LS4wNjYuNTk0LS4xMzIuODgtLjE3Ni43NDctLjc5MiAxLjAzMy0xLjM0MSAxLjAzMy0uNjgyIDAtMS4zMi0uNDQtMS4zMi0xLjI1MyAwLTEuNjI4IDMuMDEzLTIuOTQ4IDUuNzQtMi45NDggMS44OTEgMCAzLjI3Ni42MTYgMy4yNzYgMi40NDJsLS4wNDMgNC45MDRjLS4wMjIuMzc0LS4wNDUgMS4yMy41MjcgMS4yMy4xNDIgMCAuMjc2LS4wNzQuNDAyLS4xNzJhLjQ0My40NDMgMCAwIDEgLjU0Ni4wMDd6Ii8+PHBhdGggZD0iTTQyLjY1IDE1LjAwMmMxLjYyNyAwIDIuMjItMi4yNjUgMi4yMi0zLjc2IDAtMS41ODQtLjY2LTMuNjk1LTIuMjg2LTMuNjk1LTEuNDc0IDAtMS40NzQgMS41MTgtMS40NzQgMS45NzkgMCAuNTA2LjAyMyAyLjk2OS4wMjMgMy41MTkgMCAuNzA0IDAgMS45NTcgMS41MTcgMS45NTd6TTM3LjQ4MiA5Ljc5Yy4wNC0xLjY4LS4yLTIuMDc2LS45NS0yLjI4M2EuNDI1LjQyNSAwIDAgMS0uMzA0LS40MTJ2LS4xMWEuNDIuNDIgMCAwIDEgLjM3Mi0uNDE5YzEuNDg1LS4xNTkgMy4wNTYtLjU2NCAzLjgyOS0uNzc0YS40MTcuNDE3IDAgMCAxIC41Mi4zMmMuMDIzLjEwMi4wNDYuMjI3LjA3NC4zODRhLjQyMS40MjEgMCAwIDAgLjYzNi4yODhjLjg2My0uNTUzIDEuNzE0LS44NDIgMi43OTQtLjg0MiAyLjY2MSAwIDQuMzEgMi4yODcgNC4zMSA0LjcwNiAwIDMuMzItMi4zNTMgNS42My01LjEwMSA1LjYzLS44NDMgMC0xLjQ1Ny0uMjE1LTEuODgyLS40NDRhLjQyMi40MjIgMCAwIDAtLjYyNS4zNjh2Mi41MzhjMCAuODUxLjA1MiAxLjUwNy45NjIgMS42NjFhLjQxNi40MTYgMCAwIDEgLjMzNS40MTQuNDIyLjQyMiAwIDAgMS0uNDMyLjQyMiAxNTAuNTU4IDE1MC41NTggMCAwIDAtMy4yNjItLjA1NWMtLjgyNyAwLTEuMzYyLjAxNS0yLjA2Ni4wNDVhLjQyMi40MjIgMCAwIDEtLjQ0Mi0uNDJ2LS4wNTVjMC0uMjA0LjE0Mi0uMzg3LjM0NC0uNDIxLjgxOC0uMTQuODg4LS41OS44ODgtMS4yMTcuMDIyLS40MTguMDIyLTEuNzE1LjAyMi0yLjE5OWwtLjAyMi03LjEyNXpNNjAuMjcyIDE2LjE0NmMtLjg5My0uMDY2LTEuNDc3LS4wNjYtMy44MTYtLjA2Ni0xLjI4IDAtMS43OTEuMDE1LTIuNTQuMDY4YS41MDIuNTAyIDAgMCAxLS4xMS0uOTk2YzEuMjMzLS4xNzMgMS4yODYtLjYxOCAxLjI4Ni0zLjQwNVY0Ljc1NGMtLjAyMi0xLjY3MS0uMDQzLTIuMTc3LS4xOTgtMi40ODUtLjE2Ni0uMzktLjQyNy0uNDgyLTEuMDk5LS41OTRhLjUuNSAwIDAgMS0uNDE4LS40OTNjMC0uMzA4LjIzMi0uNTMzLjUxNC0uNTI1IDEuMjM2LjAzMyAyLjQ3My4wNSAzLjcwOC4wNSAxLjI0IDAgMi4wMzUtLjAyNyAyLjcxNy0uMDVhLjUuNSAwIDAgMSAuMDgyLjk5N2MtMS4zMDMuMTYzLTEuMzAzLjU1OC0xLjMwMyAzLjQ3NGwuMDIyIDYuODE3Yy4wNDQgMi4zMS4wNjYgMi40NDIuMzMgMi43OTMuMTg4LjIyMi40ODMuMzM5LjkzNS40YS41LjUgMCAwIDEgLjQyOC40OTUuNTA0LjUwNCAwIDAgMS0uNTM4LjUxM3pNNjAuOTcgMTUuNjY4YzAtLjIxOS4xNTctLjQwNS4zNzEtLjQ0MS4zMzItLjA1NS43MzQtLjE5OC43OTUtLjYyLjA2Ni0uNTA3LjA2Ni0xLjgyNi4wNjYtMi4xNTYgMC0uNzctLjAyMi0yLjAyMy0uMDIyLTIuNzkzIDAtMS4xMDQtLjM3LTEuNDA3LS44OS0xLjU1NGEuNDQ1LjQ0NSAwIDAgMS0uMzItLjQyOXYtLjA1MmMwLS4yMTkuMTU3LS40MDMuMzczLS40NCAxLjA5NS0uMTkyIDIuNzUtLjY2IDMuNjItLjk2YS40NDYuNDQ2IDAgMCAxIC41Ny4yODNjLjAxOC4wNTguMDM1LjExMy4wNS4xN2EuNDQ3LjQ0NyAwIDAgMCAuNjU5LjI2Yy44My0uNDgyIDEuNjE3LS44NCAyLjc3Ny0uODQuODM1IDAgMS42NzEuMjIgMi4zNTMuNzAzIDEuMDcyLjc0NCAxLjI1MiAxLjg4IDEuMzQgMy4wODMuMDAyLjAxMi4wMDIuMDI0LjAwMi4wMzZ2MS44OTVjMCAuMzMtLjA0NCAyLjA0NS0uMDQ0IDIuNDIgMCAuNTU2LjE1Ljg5NS44NzggMS4wM2EuNDQyLjQ0MiAwIDAgMSAuMzUzLjQzOS40NDYuNDQ2IDAgMCAxLS40NzYuNDQ2Yy0uNjIyLS4wNDItMS41NjQtLjA2OS0zLjEwOS0uMDY5LS44NzMgMC0xLjM1My4wMjQtMS44LjA2M2EuNDQ3LjQ0NyAwIDAgMS0uNDg3LS40NDV2LS4wOTRjMC0uMjAxLjEzNS0uMzc5LjMzLS40My42NDMtLjE3NC43MjMtLjQ4MS43MDQtMS44MmwtLjA0NC0zLjQzMWMtLjAyMy0xLjA1NS0uMDY2LTIuMjY1LTEuNDk2LTIuMjY1LS41OTUgMC0xLjA1Ny4yMTgtMS41MDEuNTUzYS40NTEuNDUxIDAgMCAwLS4xODMuMzc0Yy4wMzUgMS4xMDIuMDM1IDQuMjMuMDM1IDUuMjA4IDAgMS4wMDkuMTc0IDEuMjg4LjcxMiAxLjQzLjE5Mi4wNS4zMjIuMjMuMzIyLjQyOXYuMDU4YS40NDcuNDQ3IDAgMCAxLS40NzUuNDQ3Yy0uNzQ3LS4wNDctMS43MDctLjA3Ny0zLjUwNi0uMDc3LS42OTIgMC0xLjA5NC4wMjItMS40NjkuMDU4YS40NDYuNDQ2IDAgMCAxLS40ODgtLjQ0NnYtLjAyM3pNODMuODQ3IDEzLjc1NGMuMjc2LjIuMzE0LjYwNC4wNzIuODQ0YTYuNTQzIDYuNTQzIDAgMCAxLTQuNTU3IDEuOWMtMy4xNDUgMC01LjQ1NC0yLjE3OC01LjQ1NC01LjE2OSAwLTMuMTQ0IDIuNjgzLTUuMTY3IDUuOTYtNS4xNjcgMi4xNTUgMCA0LjIuOTQ1IDQuMiAyLjUyOSAwIC43NDctLjYzNyAxLjM4NS0xLjM4NSAxLjM4NS0uMzMgMC0uNzI2LS4xNTQtLjk2OC0uMzk2LS4xOTgtLjE3Ni0uMjQyLS4yODYtLjY2LTEuMjMxLS4xOTgtLjQxOC0uNjM4LTEuMTY2LTEuMzE5LTEuMTY2LTEuMjc2IDAtMS42MjggMi4xNzctMS42MjggMy4yNTUgMCAyLjQ4NSAxLjQwOCA0LjE1NiAyLjk0NyA0LjE1Ni44MTggMCAxLjQ5NS0uMzc2IDIuMDk2LS45MDRhLjU1OC41NTggMCAwIDEgLjY5Ni0uMDM2TTg2Ljg4NCAxMi41MzljMS4wNzggMCAyIC44NTggMiAyLjAwMSAwIDEuMTIyLS45MjIgMS45OC0xLjk3OCAxLjk4YTEuOTYgMS45NiAwIDAgMS0xLjk4LTEuOTM2YzAtMS4zNjMgMS4wNTYtMi4wNDUgMS45NTgtMi4wNDUiLz48L2c+PC9zdmc+" alt="snap">
+    </div>
+    <div class="container">
+        <form action="{{ url_for('index') }}" method="post" class="input-bar">
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Snapchat Video Link</label>
+              <input type="url" class="form-control" name="url_request" id="exampleInputEmail1" aria-describedby="emailHelp">
+              <div id="emailHelp" class="form-text">Enter the Snapchat Video URL</div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form> 
+      </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
